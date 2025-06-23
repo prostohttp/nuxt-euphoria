@@ -1,0 +1,40 @@
+import { usersTable } from "~~/server/db/schema";
+import { faker } from "@faker-js/faker";
+
+export default defineTask({
+    meta: {
+        name: "users-seed",
+        description: "Добавить пользователей в базу данных",
+    },
+    async run() {
+        try {
+            const users: (typeof usersTable.$inferInsert)[] = [];
+
+            for (let i = 0; i < 10; i++) {
+                users.push({
+                    name: faker.person.firstName(),
+                    email: faker.internet.email(),
+                    password: "password",
+                });
+            }
+
+            const db = useDb();
+            await db.insert(usersTable).values(users);
+
+            return {
+                result: "success",
+                message: `${users.length} пользователей успешно добавлено в базу данных`,
+            };
+        } catch (err) {
+            if (err instanceof Error) {
+                return {
+                    error: err.message,
+                };
+            } else {
+                return {
+                    error: "Неизвестная ошибка",
+                };
+            }
+        }
+    },
+});

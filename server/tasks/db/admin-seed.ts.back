@@ -1,0 +1,38 @@
+import { adminTable } from "~~/server/db/schema";
+
+// TODO: delete after implements auth plugin
+export default defineTask({
+    meta: {
+        name: "admin-seed",
+        description: "Добавить администратора в базу данных",
+    },
+    async run() {
+        try {
+            const admin: (typeof adminTable.$inferInsert)[] = [];
+            admin.push({
+                id: 1,
+                name: "admin",
+                email: "admin@euphoria.ru",
+                password: "",
+            });
+
+            const db = useDb();
+            await db.insert(adminTable).values(admin);
+
+            return {
+                result: "успех",
+                message: "Администратор успешно создан",
+            };
+        } catch (err) {
+            if (err instanceof Error) {
+                return {
+                    error: err.message,
+                };
+            } else {
+                return {
+                    error: "Неизвестная ошибка",
+                };
+            }
+        }
+    },
+});
